@@ -49,27 +49,17 @@ resource resourceGroupAks 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 }
 
 // Create VNet for AKS networks with module
-module aksVnet 'modules/v1.0/vnet.bicep' = {
+module vnet 'modules/v1.0/vnet.bicep' = {
   name: 'vnetDeployment-aks-${environment}-${locationShort}'
   scope: resourceGroupCommon
   params: {
     location: location
     tags: tags
     vnetName: naming.outputs.aksVnetName
-    vnetAddressPrefix: aksVnetAddressPrefix
-  }
-}
-
-// Volání samostatného modulu pro přidání subnetu
-module aksSubnet 'modules/v1.0/subnet.bicep' = {
-  name: 'subnetDeployment-aks-${environment}-${locationShort}-${sequence}'
-  scope: resourceGroupCommon
-  params: {
-    vnetName: naming.outputs.aksVnetName
     subnetName: naming.outputs.aksSubnetName
+    vnetAddressPrefix: aksVnetAddressPrefix
     subnetAddressPrefix: aksSubnetAddressPrefix
   }
-  dependsOn: [ aksVnet ]
 }
 
 // Create Log Analytics
@@ -114,7 +104,7 @@ module aks 'modules/v1.0/aks-cluster.bicep' = {
     tags: tags
     clusterName: naming.outputs.aksClusterName
     nodeResourceGroup: naming.outputs.aksNodeResourceGroup
-    subnetId: aksSubnet.outputs.subnetId
+    subnetId: vnet.outputs.subnetId
     logAnalyticsWorkspaceId: logAnalytics.outputs.workspaceId
     acrId: acr.outputs.acrId
     serviceCidr: aksServiceCidr
@@ -143,8 +133,8 @@ module assignKeyvalut 'modules/v1.0/keyvault-access.bicep' = {
 output aksClusterName string = aks.outputs.aksClusterName
 output aksControlPlaneFQDN string = aks.outputs.aksControlPlaneFQDN
 output acrName string = acr.outputs.acrName
-output aksVnetId string = aksVnet.outputs.vnetId
-output aksSubnetId string = aksSubnet.outputs.subnetId
+output vnetId string = vnet.outputs.vnetId
+output subnetId string = vnet.outputs.subnetId
 output aksKeyVaultName string = aksKeyVault.outputs.keyVaultName
 output resourceGroupCommonName string = resourceGroupAks.name
 output resourceGroupAksName string = resourceGroupCommon.name
