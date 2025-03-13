@@ -8,7 +8,6 @@
 |___/\__,_| .__/ \___|_|        \__, |_|\__,_|\___|
           |_|                   |___/              
 
-
+bicep module library [simplified]
 ```
-
-s1mplified bicep module library v1.0
+v1.0
