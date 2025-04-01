@@ -1,5 +1,5 @@
 ```
-
+v1.0
 
                                       _            
  ___ _   _ _ __   ___ _ __       __ _| |_   _  ___ 
@@ -10,4 +10,3 @@
 
 bicep module library [simplified]
 ```
-v1.0

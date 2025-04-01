@@ -1,20 +1,27 @@
 // Definice Azure Container Registry (ACR)                                       
-// Vytvoří registr image kontejnerů
-param location            string                                               // Lokalita registru
-param tags                object                                               // Štítky
-param acrName             string                                               // Název registru
+// Vytvoří registr image kontejnerů nebo použije existující na základě parametru
 
-// Vytvoření ACR                                                                 
-resource acr 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {
-  name: acrName                                                                // Název registru
-  location: location                                                           // Lokalita
-  tags: tags                                                                   // Štítky
-  sku: { name: 'Basic' }                                                       // Základní SKU
-  identity: { type: 'SystemAssigned' }                                         // Systémem přiřazená identita
-  properties: { adminUserEnabled: true }                                       // Povolení admin uživatele
+param location            string                                               // Lokalita registru (použito při vytváření nového)
+param tags                object                                               // Štítky (použito při vytváření nového)
+param acrName             string                                               // Název registru
+param useExistingACR      bool                                                 // Určuje, zda použít existující ACR (true) nebo vytvořit nový (false)
+
+// Použití existujícího ACR, pokud useExistingACR je true
+resource acrExisting 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' existing = if (useExistingACR) {
+  name: acrName
+}
+
+// Vytvoření nového ACR, pokud useExistingACR je false
+resource acrNew 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = if (!useExistingACR) {
+  name: acrName
+  location: location
+  tags: tags
+  sku: { name: 'Basic' }
+  identity: { type: 'SystemAssigned' }
+  properties: { adminUserEnabled: true }
 }
 
 // Výstupy                                                                       
 // ID a název pro další použití
-output acrId              string = acr.id                                     // ID registru
-output acrName            string = acr.name                                   // Název registru
+output acrId              string = useExistingACR ? acrExisting.id : acrNew.id
+output acrName            string = useExistingACR ? acrExisting.name : acrNew.name

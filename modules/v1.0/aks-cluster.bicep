@@ -1,16 +1,20 @@
-param location string
-param tags object
-param clusterName string
-param nodeResourceGroup string
-param subnetId string 
-param logAnalyticsWorkspaceId string
-param acrId string
-param serviceCidr string = '10.0.0.0/16'
-param dnsServiceIP string = '10.0.0.10'
+// parametry predane z konfiguracniho souboru
+param location string                                                         
+param tags object                                                                           
+param clusterName string                                                       
+param nodeResourceGroup string                                                 
+param subnetId string                                                          
+param logAnalyticsWorkspaceId string                                           
+param acrId string                                                             
+param podCidrs array
 param nodePoolsArray array
 param aksAuthorizedIPRanges array
 param dnsPrefix string = 'vzp'
-param kubernetesVersion string = '1.30.0'
+param kubernetesVersion string                                                // https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions?tabs=azure-cli
+param enableAppRouting bool
+param networkPluginMode string
+
+// defaultni hodnoty
 param clusterSku object = {
   name: 'Base'
   tier: 'Standard'
@@ -18,12 +22,14 @@ param clusterSku object = {
 param clusterIdentity object = {
   type: 'SystemAssigned'
 }
+param serviceCidr string = '172.18.224.0/20'                                  // Rozsah pro služby (internal CICR)
+param dnsServiceIP string = '172.18.224.10'                                   // DNS adresa (within internal CIDR)
 param isLocationEdgeZone bool = false
 param edgeZone object = {}
 param enableRBAC bool = true
 param disableLocalAccounts bool = true
 param enableAadProfile bool = true
-param adminGroupObjectIDs array = []
+param adminGroupObjectIDs array = [ 'f1f5d046-6eab-438b-90d7-b33e842075f3' ]  // eVZP_Azure-OTP
 param azureRbac bool = true
 param enablePrivateCluster bool = false
 param isPrivateClusterSupported bool = true
@@ -36,12 +42,11 @@ param diskEncryptionSetID string = ''
 param loadBalancerSku string = 'Standard'
 param networkPolicy string = 'azure'
 param networkPlugin string = 'azure'
-param networkPluginMode string = ''
 param networkDataplane string = 'azure'
 param upgradeChannel string = 'none'
 param nodeOSUpgradeChannel string = 'NodeImage'
-param enableAppRouting bool = true
-param podCidrs array = [ '0.0.0.0/8' ] // Current (local, "this") network ;)
+
+
 
 var defaultAadProfile = {
   managed: true
